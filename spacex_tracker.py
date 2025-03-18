@@ -2,6 +2,7 @@
 import datetime
 import logging
 from typing import List, Dict, Any, Optional, Union
+import copy
 
 from utils import fetch_data, parse_date
 
@@ -41,9 +42,9 @@ class SpaceXData:
         """
         Filter launches based on:
           - Date range (date must be in utc format)
-          - Rocket name
+          - Rocket name(s)
           - Launch success/failure
-          - Launch site name
+          - Launch site name(s)
         """
 
         if start_date and start_date.tzinfo is None:
@@ -102,7 +103,7 @@ class SpaceXData:
                 if launchpad not in launch_site:
                     continue
 
-            filtered.append(launch)
+            filtered.append(copy.deepcopy(launch))
         return filtered
     
     def success_rate_by_rocket(self, rocket_name: str) -> Optional[float]:

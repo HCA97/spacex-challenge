@@ -11,3 +11,5 @@ try:
 except ValueError:
     logging.error("Invalid CACHE_EXPIRY value, using default of 3600")
     CACHE_EXPIRY = 3600
+
+PAGE_SIZE = 20
