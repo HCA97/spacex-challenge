@@ -107,7 +107,7 @@ class TestSpaceXTracker(unittest.TestCase):
 
     def test_launch_frequency(self):
         freq = self.spacex_data.launch_frequency()
-        self.assertEqual(freq, {"2020-01": 1, "2020-02": 1, "2020-03": 1})
+        self.assertEqual(freq, {"01": 1, "02": 1, "03": 1})
 
         freq = self.spacex_data.launch_frequency(period="yearly")
         self.assertEqual(freq, {"2020": 3})

@@ -142,7 +142,7 @@ class SpaceXData:
                 continue
 
             if period == "monthly":
-                key = launch_date.strftime("%Y-%m")
+                key = launch_date.strftime("%m")
             elif period == "yearly":
                 key = launch_date.strftime("%Y")
             else:
