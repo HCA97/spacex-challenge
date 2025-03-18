@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-import datetime
+import json
 from utils import fetch_data, parse_date
 import math
 import logging
@@ -60,6 +60,30 @@ def launches():
                            launchpads=launchpads,
                            page=page,
                            total_pages=total_pages)
+
+
+@app.route('/stats')
+def stats():
+    # Fetch data and initialize SpaceXData
+    data, _ = fetch_data()
+    spacex_data = SpaceXData(**data)
+
+    # Get success rates by rocket
+    success_rates = {
+        rocket: spacex_data.success_rate_by_rocket(rocket) 
+        for rocket in spacex_data.get_rockets(by_name=True)
+    }
+
+    # Get launch frequencies
+    launch_freq_monthly = spacex_data.launch_frequency("monthly")
+    launch_freq_yearly = spacex_data.launch_frequency("yearly")
+
+    return render_template(
+        "stats.html",
+        success_rates=success_rates,
+        launch_freq_monthly=launch_freq_monthly,
+        launch_freq_yearly=launch_freq_yearly
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)

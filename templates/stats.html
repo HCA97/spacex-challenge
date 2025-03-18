@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpaceX Stats</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        canvas { max-width: 800px; margin: 20px auto; }
+    </style>
+</head>
+<body>
+
+    <h1>SpaceX Launch Statistics</h1>
+
+    <h2>Launches Per Year</h2>
+    <canvas id="launchesYearChart"></canvas>
+
+    <h2>Launches Per Month</h2>
+    <canvas id="launchesMonthChart"></canvas>
+
+    <h2>Success Rate by Rocket</h2>
+    <canvas id="successRateChart"></canvas>
+
+    <script>
+        // Data from Flask (passed via Jinja)
+        const launchesByYear = {{ launches_by_year | tojson | safe  }};
+        const launchesByMonth = {{ launches_by_month | tojson | safe }};
+        const successRates = {{ success_rates | tojson | safe  }};
+
+        // Launches Per Year Chart
+        new Chart(document.getElementById('launchesYearChart'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(launchesByYear),
+                datasets: [{
+                    label: 'Number of Launches',
+                    data: Object.values(launchesByYear),
+                    backgroundColor: 'rgba(0, 123, 255, 0.6)',
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        });
+
+        // Success Rate Pie Chart
+        new Chart(document.getElementById('successRateChart'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(successRates),
+                datasets: [{
+                    data: Object.values(successRates),
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+                }]
+            },
+            options: { responsive: true }
+        });
+    </script>
+
+</body>
+</html>
