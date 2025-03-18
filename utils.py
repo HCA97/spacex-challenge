@@ -37,7 +37,7 @@ def _fetch_launchpads() -> List[Dict[str, Any]]:
     launchpads = _fetch_data(f"{c.SPACEX_BASE_URL}/launchpads")
 
     # get interesting fields from launchpads
-    launchpads = [
+    return [
         {
             "id": launchpad.get("id"),
             "name": launchpad.get("name"),
@@ -47,7 +47,6 @@ def _fetch_launchpads() -> List[Dict[str, Any]]:
         }
         for launchpad in launchpads
     ]
-    return launchpads
 
 def _fetch_rockets() -> List[Dict[str, Any]]:
     """
@@ -56,7 +55,7 @@ def _fetch_rockets() -> List[Dict[str, Any]]:
     rockets = _fetch_data(f"{c.SPACEX_BASE_URL}/rockets")
 
     # get interesting fields from rockets
-    rockets = [
+    return [
         {
             "id": rocket.get("id"),
             "name": rocket.get("name"),
@@ -64,7 +63,6 @@ def _fetch_rockets() -> List[Dict[str, Any]]:
         }
         for rocket in rockets
     ]
-    return rockets
 
 def _fetch_launches() -> List[Dict[str, Any]]:
     """
@@ -73,7 +71,7 @@ def _fetch_launches() -> List[Dict[str, Any]]:
     launches = _fetch_data(f"{c.SPACEX_BASE_URL}/launches")
 
     # get interesting fields from launches
-    launches = [
+    return [
         {
             "id": launch.get("id"),
             "name": launch.get("name"),
@@ -84,7 +82,6 @@ def _fetch_launches() -> List[Dict[str, Any]]:
         }
         for launch in launches
     ]
-    return launches
 
 def fetch_data() -> Tuple[List[Dict[str, Any]], bool]:
     """
@@ -92,7 +89,7 @@ def fetch_data() -> Tuple[List[Dict[str, Any]], bool]:
     """
     global _DATA, _TIMESTAMP
 
-    def __foo(key: str, url: str) -> Tuple[str, List[Dict[str, Any]]]:
+    def __foo(key: str) -> Tuple[str, List[Dict[str, Any]]]:
         """
         Fetch data from the API endpoint.
         """
@@ -114,11 +111,7 @@ def fetch_data() -> Tuple[List[Dict[str, Any]], bool]:
         # If cache is expired or missing, fetch from API and save cache.
         logging.info(f"Fetching data...")
         with ThreadPoolExecutor(max_workers=3) as executor:
-            data = dict(executor.map(__foo, 
-                                    ["launches", "rockets", "launchpads"], 
-                                    [f"{c.SPACEX_BASE_URL}/launches", 
-                                    f"{c.SPACEX_BASE_URL}/rockets", 
-                                    f"{c.SPACEX_BASE_URL}/launchpads"]))
+            data = dict(executor.map(__foo, ["launches", "rockets", "launchpads"]))
 
         notify_subscribers = len(_DATA.get("launches", [])) != len(data["launches"])
         
@@ -130,10 +123,19 @@ def fetch_data() -> Tuple[List[Dict[str, Any]], bool]:
 
 def parse_date(date_str: str | dt.datetime) -> Optional[dt.datetime]:
     """
-    Parse a date string in ISO 8601 format to a datetime object.
+    Parse a date string into a datetime object.
     """
-    try:
-        return dt.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=dt.timezone.utc)
-    except (ValueError, TypeError) as e:
-        logging.warning(f"Invalid date format: {date_str} ({e})")
+    for data_formats in [
+        "%Y-%m-%dT%H:%M:%S.%fZ",
+        "%Y-%m-%dT%H:%M:%S.%f",
+        "%Y-%m-%dT%H:%M:%S",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d"
+    ]:
+        try:
+            return dt.datetime.strptime(date_str, data_formats).replace(tzinfo=dt.timezone.utc)
+        except Exception:
+            pass
+    
+    logging.warning(f"Invalid date format: {date_str}")
     return None
