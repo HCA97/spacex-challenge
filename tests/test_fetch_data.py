@@ -27,7 +27,8 @@ class TestFetchData(unittest.TestCase):
     @patch("utils._fetch_launches", return_value=[{"id": "1"}, {"id": "2"}, {"id": "3"}])
     @patch("utils._fetch_rockets", return_value=[{"id": "R1"}])
     @patch("utils._fetch_launchpads", return_value=[{"id": "LP1"}])
-    def test_fetch_data_cache_expired(self, mock_launchpads, mock_rockets, mock_launches):        
+    def test_fetch_data_cache_expired(self, mock_launchpads, mock_rockets, mock_launches): 
+        u._DATA = {}       
         u._TIMESTAMP = dt.datetime.now() - dt.timedelta(seconds=c.CACHE_EXPIRY + 1)
 
         data, notify = u.fetch_data()

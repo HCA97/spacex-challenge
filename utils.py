@@ -4,7 +4,7 @@ import datetime as dt
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
-from typing import List, Dict, Any, Tuple, Optional
+from typing import List, Dict, Any, Tuple, Optional, Set
 
 import requests
 
@@ -139,3 +139,20 @@ def parse_date(date_str: str | dt.datetime) -> Optional[dt.datetime]:
     
     logging.warning(f"Invalid date format: {date_str}")
     return None
+
+def send_notifications(subscribers: Set[str]) -> None:
+    """
+    Send notifications to subscribers.
+    """
+    def __foo(subscriber: str) -> None:
+        logging.info(f"Sending notification to {subscriber}")
+        for i in range(3):
+            response = requests.post(subscriber, 
+                                     json={"message": "New data is available!"},
+                                     timeout=5)
+            if response.status_code == 200:
+                break
+            time.sleep(2**i + random.random())
+
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        executor.map(__foo, subscribers)

@@ -193,7 +193,7 @@ def main():
         launch_site=args.site
     )
     print(f"Total Launches: {len(launches)}")
-    print(f"Filtered Launches: {len(filtered_launches)}\n")
+    print(f"Total Launches after filtering: {len(filtered_launches)}\n")
 
     # Statistics: Success rate per rocket
     print("\nSuccess Rate by Rocket:")

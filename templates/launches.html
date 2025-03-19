@@ -176,10 +176,19 @@
       {% if page < total_pages %}
         <button onclick="goToPage({{ page + 1 }})">Next</button>
       {% endif %}
+      <br>
+      <br>
+      <a id="export" onclick="exportPage()" download><button>Export</button></a>
     </div>
+
+    
   </div>
 </body>
 <script>
+    function exportPage() {
+        const exportLink = document.getElementById("export");
+        exportLink.href = "/export" + window.location.search;
+    }
     function goToPage(page) {
         query_str = window.location.search.replace(/[&|\?]page=\d+/g, "");
         if (query_str == "") {
