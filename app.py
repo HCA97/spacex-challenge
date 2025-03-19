@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from threading import Thread
+from threading import Thread, Lock
 from utils import fetch_data, parse_date
 import math
 import logging
@@ -11,6 +11,7 @@ from config import PAGE_SIZE
 app = Flask(__name__)
 
 _SUBSCRIBERS = set()
+_LOCK = Lock()
 
 @app.route('/')
 def launches():
@@ -73,7 +74,8 @@ def subscribe():
     if not url:
         return "No url", 400
     
-    _SUBSCRIBERS.add(url)
+    with _LOCK:
+        _SUBSCRIBERS.add(url)
    
     return "Subscribed successfully!", 200
 
