@@ -1,11 +1,12 @@
 from flask import Flask, render_template, request
 from threading import Thread, Lock
-from utils import fetch_data, parse_date
+import json
+from utils import 
 import math
 import logging
 
 from spacex_tracker import SpaceXData
-from utils import send_notifications
+from utils import send_notifications, fetch_data, parse_date
 from config import PAGE_SIZE
 
 app = Flask(__name__)
@@ -112,6 +113,30 @@ def export_launches():
         launch.pop("id")
 
     return filtered_launches, 200
+
+
+@app.route('/stats')
+def stats():
+    # Fetch data and initialize SpaceXData
+    data, _ = fetch_data()
+    spacex_data = SpaceXData(**data)
+
+    # Get success rates by rocket
+    success_rates = {
+        rocket: spacex_data.success_rate_by_rocket(rocket) 
+        for rocket in spacex_data.get_rockets(by_name=True)
+    }
+
+    # Get launch frequencies
+    launch_freq_monthly = spacex_data.launch_frequency("monthly")
+    launch_freq_yearly = spacex_data.launch_frequency("yearly")
+
+    return render_template(
+        "stats.html",
+        success_rates=success_rates,
+        launch_freq_monthly=launch_freq_monthly,
+        launch_freq_yearly=launch_freq_yearly
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)
