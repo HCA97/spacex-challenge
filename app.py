@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request
 from threading import Thread, Lock
 import json
-from utils import 
 import math
 import logging
 
@@ -69,7 +68,11 @@ def launches():
                            page=page,
                            total_pages=total_pages)
 
-@app.route("/subscribe", methods=["POST"])
+@app.route('/stats')
+def stats():
+    return render_template("stats.html")
+
+@app.route("/api/subscribe", methods=["POST"])
 def subscribe():
     url = request.get_json().get("url")
     if not url:
@@ -80,7 +83,7 @@ def subscribe():
    
     return "Subscribed successfully!", 200
 
-@app.route("/export", methods=["GET"])
+@app.route("/api/launches", methods=["GET"])
 def export_launches():
     data, notify_subscribers = fetch_data()
     if notify_subscribers and _SUBSCRIBERS:
@@ -114,29 +117,42 @@ def export_launches():
 
     return filtered_launches, 200
 
-
-@app.route('/stats')
-def stats():
+@app.route("/api/stats")
+def api_stats():
     # Fetch data and initialize SpaceXData
-    data, _ = fetch_data()
+    data, notify_subscribers = fetch_data()
+    if notify_subscribers and _SUBSCRIBERS:
+        Thread(target=send_notifications, args=(_SUBSCRIBERS,), daemon=True).start()
     spacex_data = SpaceXData(**data)
 
     # Get success rates by rocket
     success_rates = {
-        rocket: spacex_data.success_rate_by_rocket(rocket) 
+        rocket: spacex_data.success_rate_by_rocket(rocket)
         for rocket in spacex_data.get_rockets(by_name=True)
     }
+    # sort by success rate
+    success_rates = dict(sorted(success_rates.items(), key=lambda x: -1 if x[1] is None else x[1], reverse=True))
 
     # Get launch frequencies
     launch_freq_monthly = spacex_data.launch_frequency("monthly")
     launch_freq_yearly = spacex_data.launch_frequency("yearly")
 
-    return render_template(
-        "stats.html",
-        success_rates=success_rates,
-        launch_freq_monthly=launch_freq_monthly,
-        launch_freq_yearly=launch_freq_yearly
-    )
+    # conver monts and years to number (some reason js doesnt use sorted keys)
+    launch_freq_monthly = {int(k): v for k, v in launch_freq_monthly.items()}
+    launch_freq_yearly = {int(k): v for k, v in launch_freq_yearly.items()}
+
+    # sort by month/year
+    launch_freq_monthly = dict(sorted(launch_freq_monthly.items(), key=lambda x: x[0]))
+    launch_freq_yearly = dict(sorted(launch_freq_yearly.items(), key=lambda x: x[0]))
+
+    return {
+        "success_rates": success_rates,
+        "launch_freq_monthly": launch_freq_monthly,
+        "launch_freq_yearly": launch_freq_yearly
+    }, 200
+    
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
