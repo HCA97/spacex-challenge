@@ -5,7 +5,7 @@ A Flask-based web app that tracks and analyzes SpaceX launches using the [SpaceX
 ## Features
 
 - **Launch Tracking:** View and filter launches by date, rocket, success status, and launch site.
-- **Statistics:** Interactive charts for launch frequency per year/month and rocket success rates.
+- **Statistics:** Interactive charts for launch frequency per year and month and rocket success rates.
 - **Notifications:** Webhook support for new launches.
 - **Data Export:** Export launch data in JSON format.
 - **Command Line Interface (CLI):**
