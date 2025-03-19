@@ -44,8 +44,10 @@ Access at: [http://localhost:8000/](http://localhost:8000/)
 ## API Endpoints
 
 - **`GET /`** - List launches (supports filtering)
-- **`POST /subscribe`** - Subscribe to webhook notifications
-- **`GET /export`** - Export launch data
+- **`GET /stats`** - Display launch statistics
+- **`POST /api/subscribe`** - Subscribe to webhook notifications
+- **`GET /api/launches`** - Get launch data (supports filtering)
+- **`GET /api/stats`** - Get launch statistics
 
 ## CLI Usage
 
