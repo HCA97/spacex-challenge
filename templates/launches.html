@@ -18,6 +18,10 @@
       background-color: #fff;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
+    .nav {
+      text-align: left;
+      margin-bottom: 20px;
+    }
     h1 {
       text-align: center;
       color: #333;
@@ -82,7 +86,7 @@
       text-align: center;
       margin-top: 20px;
     }
-    .pagination button, .pagination span {
+    button, span {
       display: inline-block;
       margin: 0 5px;
       padding: 8px 12px;
@@ -91,8 +95,8 @@
       text-decoration: none;
       border-radius: 4px;
     }
-    .pagination span.active,
-    .pagination button:hover {
+    span.active,
+    button:hover {
       background-color: #007BFF;
       color: #fff;
     }
@@ -100,7 +104,13 @@
 </head>
 <body>
   <div class="container">
+    <div class="nav">
+      <a href="/"><button>Home</button></a>
+      <a href="/stats"><button>Stats</button></a>
+    </div>
+   
     <h1>SpaceX Launches</h1>
+    
     <form method="get">
       <div class="form-group">
         <label for="start_date">Start Date:</label>
@@ -187,7 +197,7 @@
 <script>
     function exportPage() {
         const exportLink = document.getElementById("export");
-        exportLink.href = "/export" + window.location.search;
+        exportLink.href = "/api/launches" + window.location.search;
     }
     function goToPage(page) {
         query_str = window.location.search.replace(/[&|\?]page=\d+/g, "");

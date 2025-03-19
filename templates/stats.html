@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpaceX Stats</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .nav {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        canvas {
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        button, span {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 12px;
+            border: 1px solid #007BFF;
+            color: #007BFF;
+            text-decoration: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover, span.active {
+            background-color: #007BFF;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="/"><button>Home</button></a>
+            <a href="/stats"><button>Stats</button></a>
+        </div>
+
+        <h1>SpaceX Launch Statistics</h1>
+
+        <h2>Launches Per Year</h2>
+        <canvas id="launchesYearChart"></canvas>
+
+        <h2>Launches Per Month</h2>
+        <canvas id="launchesMonthChart"></canvas>
+
+        <h2>Success Rate by Rocket (in %)</h2>
+        <canvas id="successRateChart"></canvas>
+    </div>
+
+    <script>
+        async function fetchData() {
+            Chart.defaults.plugins.legend.display = false;
+
+            const response = await fetch("/api/stats");
+            const data = await response.json();
+
+            const years = Object.keys(data.launch_freq_yearly);
+            const launchesByYear = Object.values(data.launch_freq_yearly);
+            const months = Object.keys(data.launch_freq_monthly);
+            const launchesByMonth = Object.values(data.launch_freq_monthly);
+            const rockets = Object.keys(data.success_rates);
+            const successRates = Object.values(data.success_rates);
+
+            // Launches Per Year Chart
+            new Chart(document.getElementById('launchesYearChart'), {
+                type: 'bar',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        data: launchesByYear,
+                        backgroundColor: 'rgba(0, 123, 255, 0.6)',
+                        borderColor: 'rgba(0, 123, 255, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true } } }
+            });
+
+            // Launches Per Month Chart
+            new Chart(document.getElementById('launchesMonthChart'), {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        data: launchesByMonth,
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true } } }
+            });
+
+            // Success Rate Chart
+            new Chart(document.getElementById('successRateChart'), {
+                type: 'bar',
+                data: {
+                    labels: rockets,
+                    datasets: [{
+                        data: successRates,
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+                    }]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
+            });            
+        }
+
+        // Fetch data on page load
+        fetchData();
+    </script>
+</body>
+</html>
